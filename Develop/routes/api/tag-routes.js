@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
     // find all tags
     const tagData = await Tag.findAll({
       // include associated Product data
-      include: [{ model: Product, through: ProductTag, as: 'productTag_products' }]
+      include: [{ model: Product }]
     });
     res.status(200).json(tagData);
   } catch (err) {
@@ -22,7 +22,7 @@ router.get('/:id', async (req, res) => {
     // find a single tag by its `id`
     const tagData = await Tag.findByPk(req.params.id, {
       // be sure to include its associated Product data
-      include: [{ model: Product, thorugh: ProductTag, as: 'productTag_products' }]
+      include: [{ model: Product, thorugh: ProductTag }]
     });
 
     if (!tagData) {
@@ -66,8 +66,23 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   // delete on tag by its `id` value
+  try {
+    const tagData = await Tag.destroy({
+      where: {
+        id: req.params.id
+      }
+    });
+    if (tagData){
+      res.status(200).json({ message: 'Tag was successfully deleted!'})
+    } else {
+      res.status(404).json({ message: "No tag with this id found"})
+    };
+  } catch (err) {
+    res.status(500).json(err);
+  }
+
 });
 
 module.exports = router;
